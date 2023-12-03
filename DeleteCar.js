@@ -14,7 +14,7 @@ const DeleteCar = ({ carId }) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       } else {
-        navigation.navigate("CarsList");
+        navigation.navigate("Layout");
       }
     } catch (error) {
       console.error("An error occurred:", error);

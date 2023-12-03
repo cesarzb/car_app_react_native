@@ -18,7 +18,7 @@ const DeleteBrand = ({ brandId }) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       } else {
-        navigation.navigate("BrandsList");
+        navigation.navigate("Layout");
       }
     } catch (error) {
       console.error("An error occurred:", error);
