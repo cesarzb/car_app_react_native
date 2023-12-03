@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { API_URL, API_VERSION } from "./constants";
+import useAuth from "./useAuth";
 
 const UpdateBrand = () => {
   const [name, setName] = useState("");
@@ -11,7 +12,7 @@ const UpdateBrand = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { brandId } = route.params;
-
+  const { auth } = useAuth();
   const handleSubmit = () => {
     const brandData = {
       brand: {
@@ -29,19 +30,23 @@ const UpdateBrand = () => {
     })
       .then((response) => response.json())
       .then(() => {
-        navigation.navigate("BrandsList");
+        navigation.navigate("Layout");
       });
   };
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(API_URL + API_VERSION + `/brands/${brandId}`, {})
-      .then((response) => response.json())
-      .then((payload) => {
-        setName(payload.name);
-        setYear(payload.year);
-      })
-      .finally(() => setIsLoading(false));
+    if (auth.accessToken) {
+      fetch(API_URL + API_VERSION + `/brands/${brandId}`, {})
+        .then((response) => response.json())
+        .then((payload) => {
+          setName(payload.name);
+          setYear(String(payload.year));
+        })
+        .finally(() => setIsLoading(false));
+    } else {
+      navigation.navigate("Login");
+    }
   }, [brandId]);
 
   return isLoading ? (
@@ -71,7 +76,7 @@ const UpdateBrand = () => {
           marginBottom: 16,
         }}
         value={year}
-        onChangeText={(text) => setYear(text)}
+        onChangeText={(text) => setYear(String(text))}
       />
 
       <Button title="Submit" onPress={handleSubmit} />

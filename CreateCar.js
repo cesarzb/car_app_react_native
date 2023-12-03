@@ -32,7 +32,7 @@ const CreateCar = () => {
       .then((payload) => {
         console.log("payload");
         console.log(payload);
-        navigation.navigate("CarsList");
+        navigation.navigate("Layout");
       });
   };
 

@@ -2,26 +2,32 @@ import React from "react";
 import { View, Text, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { API_URL, API_VERSION } from "./constants";
+import useAuth from "./useAuth";
 
 const DeleteBrand = ({ brandId }) => {
   const navigation = useNavigation();
+  const { auth } = useAuth();
 
   const handleSubmit = async () => {
-    try {
-      const response = await fetch(
-        API_URL + API_VERSION + `/brands/${brandId}`,
-        {
-          method: "DELETE",
-        }
-      );
+    if (auth.accessToken) {
+      try {
+        const response = await fetch(
+          API_URL + API_VERSION + `/brands/${brandId}`,
+          {
+            method: "DELETE",
+          }
+        );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      } else {
-        navigation.navigate("Layout");
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        } else {
+          navigation.navigate("Layout");
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
       }
-    } catch (error) {
-      console.error("An error occurred:", error);
+    } else {
+      navigation.navigate("Login");
     }
   };
 

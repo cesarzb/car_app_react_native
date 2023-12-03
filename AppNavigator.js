@@ -13,6 +13,8 @@ import BrandDetails from "./BrandDetails";
 import BrandsList from "./BrandsList";
 import CreateBrand from "./CreateBrand";
 import UpdateBrand from "./UpdateBrand";
+import Login from "./Login";
+import Register from "./Register";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,8 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Layout">
         <Stack.Screen name="Layout" component={Layout} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="CarsList" component={CarsList} />
         <Stack.Screen name="CarDetails" component={CarDetails} />

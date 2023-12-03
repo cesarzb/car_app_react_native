@@ -1,13 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { API_URL, API_VERSION } from "./constants";
+import useAuth from "./useAuth";
 
 const CreateBrand = () => {
   const [name, setName] = useState("");
   const [year, setYear] = useState("1234");
-
+  const { auth } = useAuth();
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (!auth.accessToken) {
+      navigation.navigate("Login");
+    }
+  }, []);
 
   const handleSubmit = () => {
     const brandData = {
@@ -26,7 +33,7 @@ const CreateBrand = () => {
     })
       .then((response) => response.json())
       .then(() => {
-        navigation.navigate("BrandsList");
+        navigation.navigate("Layout");
       });
   };
 
@@ -53,7 +60,7 @@ const CreateBrand = () => {
           marginBottom: 16,
         }}
         value={year}
-        onChangeText={(text) => setYear(text)}
+        onChangeText={(text) => setYear(String(text))}
       />
 
       <Button title="Submit" onPress={handleSubmit} />

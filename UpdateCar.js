@@ -33,7 +33,7 @@ const UpdateCar = () => {
     })
       .then((response) => response.json())
       .then(() => {
-        navigation.navigate("CarDetails", { carId });
+        navigation.navigate("Layout", { carId });
       });
   };
 

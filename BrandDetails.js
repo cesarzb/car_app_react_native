@@ -3,10 +3,12 @@ import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { API_URL, API_VERSION } from "./constants";
 import DeleteBrand from "./DeleteBrand";
+import useAuth from "./useAuth";
 
 const BrandDetails = () => {
   const [brand, setBrand] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const { auth } = useAuth();
 
   const route = useRoute();
   const navigation = useNavigation();
@@ -14,12 +16,20 @@ const BrandDetails = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(API_URL + API_VERSION + `/brands/${brandId}`, {})
-      .then((response) => response.json())
-      .then((payload) => {
-        setBrand(payload);
-        setIsLoading(false);
-      });
+    if (auth.accessToken) {
+      fetch(API_URL + API_VERSION + `/brands/${brandId}`, {
+        headers: {
+          Authorization: auth.accessToken,
+        },
+      })
+        .then((response) => response.json())
+        .then((payload) => {
+          setBrand(payload);
+          setIsLoading(false);
+        });
+    } else {
+      navigation.navigate("Login");
+    }
   }, [brandId]);
 
   return isLoading ? (
