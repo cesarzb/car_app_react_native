@@ -1,60 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { API_URL, API_VERSION } from "./constants";
 import DeleteCar from "./DeleteCar";
+import { useTranslation } from "react-i18next";
 
-const CarDetails = () => {
+const CarDetails = ({ route, navigation }) => {
+  const { t } = useTranslation();
+
   const [car, setCar] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { carId } = route.params;
-
   useEffect(() => {
     setIsLoading(true);
-    fetch(API_URL + API_VERSION + `/cars/${carId}`, {})
+    const { carId } = route.params;
+
+    fetch(`${API_URL}${API_VERSION}/cars/${carId}`, {})
       .then((response) => response.json())
       .then((payload) => {
         setCar(payload);
         setIsLoading(false);
       });
-  }, [carId]);
+  }, []);
 
   return isLoading ? (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" color="#0000ff" />
+      <Text>Loading...</Text>
     </View>
   ) : (
     <View style={{ flex: 1, padding: 16 }}>
-      <View style={{ marginBottom: 16 }}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          Model: {car.model}
-        </Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{car.model}</Text>
+          <Text>{car?.brand?.name}</Text>
+        </View>
       </View>
-      <View style={{ marginBottom: 16 }}>
-        <Text>Seats: {car.seats}</Text>
+      <View style={{ marginTop: 16 }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View>
+            <Text style={{ fontWeight: "bold" }}>
+              {t("Seats")}: {car.seats}
+            </Text>
+            <Text>
+              {t("Price")}: {Number(car.price).toFixed(2)}$
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 16,
+          }}
+        >
+          <TouchableOpacity
+            style={{ backgroundColor: "blue", padding: 10, borderRadius: 5 }}
+            onPress={() => navigation.navigate("CarsList")}
+          >
+            <Text style={{ color: "white" }}>{t("Back to cars list")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ backgroundColor: "blue", padding: 10, borderRadius: 5 }}
+            onPress={() => navigation.navigate("UpdateCar", { carId: car.id })}
+          >
+            <Text style={{ color: "white" }}>{t("Edit car")}</Text>
+          </TouchableOpacity>
+          <DeleteCar carId={car.id} />
+        </View>
       </View>
-      <View style={{ marginBottom: 16 }}>
-        <Text>Brand: {car?.brand?.name}</Text>
-      </View>
-      <View style={{ marginBottom: 16 }}>
-        <Text>Price: {car.price}$</Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => navigation.navigate("UpdateCar", { carId: car.id })}
-        style={{ marginBottom: 16 }}
-      >
-        <Text style={{ color: "blue", fontSize: 16 }}>Edit car</Text>
-      </TouchableOpacity>
-      <DeleteCar carId={carId} />
-      <TouchableOpacity
-        onPress={() => navigation.navigate("CarsList")}
-        style={{ marginTop: 16 }}
-      >
-        <Text style={{ color: "blue", fontSize: 16 }}>Back to cars list</Text>
-      </TouchableOpacity>
     </View>
   );
 };

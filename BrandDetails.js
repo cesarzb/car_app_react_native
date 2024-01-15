@@ -1,67 +1,62 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, TouchableOpacity } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { API_URL, API_VERSION } from "./constants";
 import DeleteBrand from "./DeleteBrand";
 import useAuth from "./useAuth";
+import { useTranslation } from "react-i18next";
 
-const BrandDetails = () => {
+const BrandDetails = ({ route, navigation }) => {
+  const { auth } = useAuth();
   const [brand, setBrand] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const { auth } = useAuth();
-
-  const route = useRoute();
-  const navigation = useNavigation();
   const { brandId } = route.params;
+  const { t } = useTranslation();
 
   useEffect(() => {
     setIsLoading(true);
-    if (auth.accessToken) {
-      fetch(API_URL + API_VERSION + `/brands/${brandId}`, {
-        headers: {
-          Authorization: auth.accessToken,
-        },
-      })
-        .then((response) => response.json())
-        .then((payload) => {
-          setBrand(payload);
-          setIsLoading(false);
-        });
-    } else {
-      navigation.navigate("Login");
-    }
-  }, [brandId]);
+    fetch(`${API_URL}${API_VERSION}/brands/${brandId}`, {
+      headers: {
+        Authorization: auth.accessToken,
+      },
+    })
+      .then((response) => response.json())
+      .then((payload) => {
+        setBrand(payload);
+        setIsLoading(false);
+      });
+  }, []);
 
   return isLoading ? (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" color="#0000ff" />
+      <Text>Loading...</Text>
     </View>
   ) : (
     <View style={{ flex: 1, padding: 16 }}>
-      <View style={{ marginBottom: 16 }}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-          Name: {brand.name}
-        </Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>{brand.name}</Text>
+          <Text>{brand.year}</Text>
+        </View>
       </View>
-      <View style={{ marginBottom: 16 }}>
-        <Text>Year: {brand.year}</Text>
+      <View style={{ marginTop: 16 }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <TouchableOpacity
+            style={{ backgroundColor: "blue", padding: 10, borderRadius: 5 }}
+            onPress={() => navigation.navigate("BrandsList")}
+          >
+            <Text style={{ color: "white" }}>{t("Back to brands list")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ backgroundColor: "blue", padding: 10, borderRadius: 5 }}
+            onPress={() =>
+              navigation.navigate("UpdateBrand", { brandId: brand.id })
+            }
+          >
+            <Text style={{ color: "white" }}>{t("Edit brand")}</Text>
+          </TouchableOpacity>
+          <DeleteBrand brandId={brandId} />
+        </View>
       </View>
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate("UpdateBrand", { brandId })}
-        style={{ marginBottom: 16 }}
-      >
-        <Text style={{ color: "blue", fontSize: 16 }}>Edit brand</Text>
-      </TouchableOpacity>
-
-      <DeleteBrand brandId={brandId} />
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate("BrandsList")}
-        style={{ marginTop: 16 }}
-      >
-        <Text style={{ color: "blue", fontSize: 16 }}>Back to brands list</Text>
-      </TouchableOpacity>
     </View>
   );
 };

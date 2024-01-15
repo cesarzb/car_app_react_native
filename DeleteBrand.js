@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
+import { View, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { API_URL, API_VERSION } from "./constants";
 import useAuth from "./useAuth";
@@ -12,9 +12,12 @@ const DeleteBrand = ({ brandId }) => {
     if (auth.accessToken) {
       try {
         const response = await fetch(
-          API_URL + API_VERSION + `/brands/${brandId}`,
+          `${API_URL}${API_VERSION}/brands/${brandId}`,
           {
             method: "DELETE",
+            headers: {
+              Authorization: auth.accessToken,
+            },
           }
         );
 

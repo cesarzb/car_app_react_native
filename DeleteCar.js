@@ -8,9 +8,10 @@ const DeleteCar = ({ carId }) => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch(API_URL + API_VERSION + `/cars/${carId}`, {
+      const response = await fetch(`${API_URL}${API_VERSION}/cars/${carId}`, {
         method: "DELETE",
       });
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       } else {

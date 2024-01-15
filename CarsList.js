@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { API_URL, API_VERSION } from "./constants";
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 
 const CarsList = () => {
+  const { t } = useTranslation();
+
   const [cars, setCars] = useState([]);
   const [page, setPage] = useState(1); // Initial page
+  const navigation = useNavigation();
 
   const fetchCars = (pageNumber) => {
     fetch(`${API_URL}${API_VERSION}/cars?page=${pageNumber}`)
@@ -17,59 +21,57 @@ const CarsList = () => {
     fetchCars(page);
   }, [page]);
 
-  const navigation = useNavigation();
-
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
 
+  const handleCarClick = (id) => {
+    navigation.navigate("CarDetails", { carId: id });
+  };
+
   return (
-    <View style={{ padding: 16 }}>
-      <TouchableOpacity onPress={() => navigation.navigate("CreateCar")}>
-        <Text>Create a new car</Text>
+    <View style={{ flex: 1, padding: 16 }}>
+      <TouchableOpacity
+        style={{ backgroundColor: "blue", padding: 10, marginBottom: 16 }}
+        onPress={() => navigation.navigate("CreateCar")}
+      >
+        <Text style={{ color: "white" }}>{t("Create a new car")}</Text>
       </TouchableOpacity>
-      {cars.length > 0 ? (
-        <>
-          {cars.map((car) => (
-            <View key={car.id} style={{ marginBottom: 16 }}>
-              <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                {car.model}
-              </Text>
-              <Text>{car.brand.name}</Text>
-              <Text>Seats: {car.seats}</Text>
-              <Text>Price: {car.price}$</Text>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("CarDetails", { carId: car.id })
-                }
-              >
-                <Text style={{ color: "blue", fontSize: 16 }}>Show car</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Button
-              onPress={() => handlePageChange(page - 1)}
-              title="Previous"
-              disabled={page === 1}
-            />
-            <Button onPress={() => handlePageChange(page + 1)} title="Next" />
-          </View>
-        </>
-      ) : (
-        <>
-          <Text>No cars to show :(</Text>
-          {page !== 1 && (
-            <Button
-              onPress={() => handlePageChange(page - 1)}
-              title="Previous"
-              disabled={page === 1}
-            />
+      {cars.length > 0 && (
+        <FlatList
+          data={cars}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={{
+                backgroundColor: "lightgray",
+                padding: 10,
+                marginBottom: 8,
+              }}
+              onPress={() => handleCarClick(item.id)}
+            >
+              <Text style={{ fontWeight: "bold" }}>{item.model}</Text>
+              <Text>{item.brand.name}</Text>
+            </TouchableOpacity>
           )}
-        </>
+        />
       )}
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <TouchableOpacity
+          style={{ backgroundColor: "blue", padding: 10, flex: 1 }}
+          onPress={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+        >
+          <Text style={{ color: "white" }}>{t("Previous")}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{ backgroundColor: "blue", padding: 10, flex: 1 }}
+          onPress={() => handlePageChange(page + 1)}
+          disabled={cars.length < 12}
+        >
+          <Text style={{ color: "white" }}>{t("Next")}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
